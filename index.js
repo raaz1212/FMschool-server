@@ -30,6 +30,12 @@ async function run() {
     const instructorsCollection = client.db("rjDB").collection("instructors");
     const classesCollection = client.db("rjDB").collection("classes");
 
+    // classes apis
+    app.get("/classes", async (req, res) => {
+      const result = await classesCollection.find().toArray();
+      res.send(result);
+    });
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
