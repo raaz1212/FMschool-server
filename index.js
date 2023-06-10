@@ -30,6 +30,9 @@ async function run() {
     const instructorsCollection = client.db("rjDB").collection("instructors");
     const classesCollection = client.db("rjDB").collection("classes");
     const usersCollection = client.db("rjDB").collection("users");
+    const selectedclassCollection = client
+      .db("rjDB")
+      .collection("selectedclass");
 
     // classes api
     app.get("/classes", async (req, res) => {
@@ -59,6 +62,13 @@ async function run() {
       }
 
       const result = await usersCollection.insertOne(user);
+      res.send(result);
+    });
+
+    // selected class api
+    app.post("/selectedclass", async (req, res) => {
+      const item = req.body;
+      const result = await selectedclassCollection.insertOne(item);
       res.send(result);
     });
 
