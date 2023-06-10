@@ -29,16 +29,36 @@ async function run() {
 
     const instructorsCollection = client.db("rjDB").collection("instructors");
     const classesCollection = client.db("rjDB").collection("classes");
+    const usersCollection = client.db("rjDB").collection("users");
 
-    // instructors apis
+    // classes api
+    app.get("/classes", async (req, res) => {
+      const result = await classesCollection.find().toArray();
+      res.send(result);
+    });
+
+    app.post("/users", async (req, res) => {
+      const user = req.body;
+      const query = { email: user.email };
+      const existingUser = await usersCollection.findOne(query);
+
+      if (existingUser) {
+        return res.send({ message: "user already exists" });
+      }
+
+      const result = await usersCollection.insertOne(user);
+      res.send(result);
+    });
+
+    // instructors api
     app.get("/instructors", async (req, res) => {
       const result = await instructorsCollection.find().toArray();
       res.send(result);
     });
 
-    // classes apis
-    app.get("/classes", async (req, res) => {
-      const result = await classesCollection.find().toArray();
+    // users api
+    app.get("/users", async (req, res) => {
+      const result = await usersCollection.find().toArray();
       res.send(result);
     });
 
