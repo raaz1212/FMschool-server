@@ -30,6 +30,12 @@ async function run() {
     const instructorsCollection = client.db("rjDB").collection("instructors");
     const classesCollection = client.db("rjDB").collection("classes");
 
+    // instructors apis
+    app.get("/instructors", async (req, res) => {
+      const result = await instructorsCollection.find().toArray();
+      res.send(result);
+    });
+
     // classes apis
     app.get("/classes", async (req, res) => {
       const result = await classesCollection.find().toArray();
