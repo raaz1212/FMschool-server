@@ -34,19 +34,19 @@ async function run() {
       .db("rjDB")
       .collection("selectedclass");
 
-    // classes api
+    // classes
     app.get("/classes", async (req, res) => {
       const result = await classesCollection.find().toArray();
       res.send(result);
     });
 
-    // instructors api
+    // instructors
     app.get("/instructors", async (req, res) => {
       const result = await instructorsCollection.find().toArray();
       res.send(result);
     });
 
-    // users api
+    // users
     app.get("/users", async (req, res) => {
       const result = await usersCollection.find().toArray();
       res.send(result);
@@ -65,7 +65,7 @@ async function run() {
       res.send(result);
     });
 
-    // selected class api
+    // selected class
     app.post("/selectedclass", async (req, res) => {
       const item = req.body;
       const result = await selectedclassCollection.insertOne(item);
