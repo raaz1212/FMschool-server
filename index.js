@@ -37,19 +37,6 @@ async function run() {
       res.send(result);
     });
 
-    app.post("/users", async (req, res) => {
-      const user = req.body;
-      const query = { email: user.email };
-      const existingUser = await usersCollection.findOne(query);
-
-      if (existingUser) {
-        return res.send({ message: "user already exists" });
-      }
-
-      const result = await usersCollection.insertOne(user);
-      res.send(result);
-    });
-
     // instructors api
     app.get("/instructors", async (req, res) => {
       const result = await instructorsCollection.find().toArray();
@@ -59,6 +46,19 @@ async function run() {
     // users api
     app.get("/users", async (req, res) => {
       const result = await usersCollection.find().toArray();
+      res.send(result);
+    });
+
+    app.post("/users", async (req, res) => {
+      const user = req.body;
+      const query = { email: user.email };
+      const existingUser = await usersCollection.findOne(query);
+
+      if (existingUser) {
+        return res.send({ message: "User already has an account" });
+      }
+
+      const result = await usersCollection.insertOne(user);
       res.send(result);
     });
 
