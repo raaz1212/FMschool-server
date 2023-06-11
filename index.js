@@ -30,9 +30,17 @@ async function run() {
     const instructorsCollection = client.db("rjDB").collection("instructors");
     const classesCollection = client.db("rjDB").collection("classes");
     const usersCollection = client.db("rjDB").collection("users");
-    const selectedclassCollection = client
-      .db("rjDB")
-      .collection("selectedclass");
+    const enrollmentsCollection = client.db("rjDB").collection("enrollments");
+
+    //JWT
+    app.post("/jwt", (req, res) => {
+      const user = req.body;
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: "1h",
+      });
+
+      res.send({ token });
+    });
 
     // classes
     app.get("/classes", async (req, res) => {
@@ -66,9 +74,10 @@ async function run() {
     });
 
     // selected class
-    app.post("/selectedclass", async (req, res) => {
+
+    app.post("/enrollments", async (req, res) => {
       const item = req.body;
-      const result = await selectedclassCollection.insertOne(item);
+      const result = await enrollmentsCollection.insertOne(item);
       res.send(result);
     });
 
