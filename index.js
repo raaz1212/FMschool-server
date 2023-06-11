@@ -90,6 +90,13 @@ async function run() {
       res.send(result);
     });
 
+    app.delete("/enrollments/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await enrollmentsCollection.deleteOne(query);
+      res.send(result);
+    });
+
     // patch user for making an instructor
     app.patch("/users/instructor/:id", async (req, res) => {
       const id = req.params.id;
