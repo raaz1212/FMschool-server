@@ -74,6 +74,15 @@ async function run() {
     });
 
     // selected class
+    app.get("/enrollments", async (req, res) => {
+      const email = req.query.email;
+      if (!email) {
+        res.send([]);
+      }
+      const query = { email: email };
+      const result = await enrollmentsCollection.find(query).toArray();
+      res.send(result);
+    });
 
     app.post("/enrollments", async (req, res) => {
       const item = req.body;
