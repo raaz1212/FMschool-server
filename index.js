@@ -52,16 +52,41 @@ async function run() {
     const classesCollection = client.db("rjDB").collection("classes");
     const usersCollection = client.db("rjDB").collection("users");
     const enrollmentsCollection = client.db("rjDB").collection("enrollments");
+    const classdataCollection = client.db("rjDB").collection("classdata");
 
-    //JWT
-    app.post("/jwt", (req, res) => {
-      const user = req.body;
-      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: "1h",
-      });
+    // //JWT
+    // app.post("/jwt", (req, res) => {
+    //   const user = req.body;
+    //   const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+    //     expiresIn: "1h",
+    //   });
 
-      res.send({ token });
-    });
+    //   res.send({ token });
+    // });
+
+    // const verifyAdmin = async (req, res, next) => {
+    //   const email = req.decoded.email;
+    //   const query = { email: email };
+    //   const user = await usersCollection.findOne(query);
+    //   if (user?.role !== "admin") {
+    //     return res
+    //       .status(403)
+    //       .send({ error: true, message: "forbidden message" });
+    //   }
+    //   next();
+    // };
+
+    // const verifyInstructor = async (req, res, next) => {
+    //   const email = req.decoded.email;
+    //   const query = { email: email };
+    //   const user = await usersCollection.findOne(query);
+    //   if (user?.role !== "admin") {
+    //     return res
+    //       .status(403)
+    //       .send({ error: true, message: "forbidden message" });
+    //   }
+    //   next();
+    // };
 
     // classes
     app.get("/classes", async (req, res) => {
@@ -95,16 +120,11 @@ async function run() {
     });
 
     // selected class
-    app.get("/enrollments", verifyJWT, async (req, res) => {
+    app.get("/enrollments", async (req, res) => {
       const email = req.query.email;
+
       if (!email) {
         res.send([]);
-      }
-      const decodedEmail = req.decoded.email;
-      if (email !== decodedEmail) {
-        return res
-          .status(403)
-          .send({ error: true, message: "forbidden access" });
       }
       const query = { email: email };
       const result = await enrollmentsCollection.find(query).toArray();
@@ -119,8 +139,36 @@ async function run() {
 
     app.delete("/enrollments/:id", async (req, res) => {
       const id = req.params.id;
+      console.log("ID:", id); // Check if the ID is correct
+
       const query = { _id: new ObjectId(id) };
       const result = await enrollmentsCollection.deleteOne(query);
+      console.log("Delete Result:", result); // Check the result object
+
+      res.send(result);
+    });
+
+    //******************************************** */
+
+    app.get("/users/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const result = await usersCollection.findOne(query);
+      res.send(result);
+    });
+
+    //**************************** */
+
+    app.get("/users/instructor/:email", async (req, res) => {
+      const email = req.params.email;
+
+      if (req.decoded.email !== email) {
+        res.send({ instructor: false });
+      }
+
+      const query = { email: email };
+      const user = await usersCollection.findOne(query);
+      const result = { instructor: user?.role === "instructor" };
       res.send(result);
     });
 
@@ -138,6 +186,24 @@ async function run() {
       res.send(result);
     });
 
+    //******************* */
+    app.get("/users/admin/:email", async (req, res) => {
+      const email = req.params.email;
+
+      if (!req.decoded || !req.decoded.email) {
+        return res.send({ admin: false });
+      }
+
+      if (req.decoded.email !== email) {
+        return res.send({ admin: false });
+      }
+
+      const query = { email: email };
+      const user = await usersCollection.findOne(query);
+      const result = { admin: user?.role === "admin" };
+      res.send(result);
+    });
+
     // patch user for making an admin
     app.patch("/users/admin/:id", async (req, res) => {
       const id = req.params.id;
@@ -151,6 +217,25 @@ async function run() {
       const result = await usersCollection.updateOne(filter, updateDoc);
       res.send(result);
     });
+
+    //************************************************************************************* */
+
+    // Save pending class in database
+    app.post("/classdata", async (req, res) => {
+      console.log(req.decoded);
+      const room = req.body;
+      const result = await classdataCollection.insertOne(room);
+      res.send(result);
+    });
+
+    app.get("/classdata/:email", async (req, res) => {
+      const email = req.params.instructorEmail;
+      const query = { email: email };
+      const result = await classdataCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    //************************************************************************************* */
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
