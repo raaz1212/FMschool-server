@@ -38,7 +38,6 @@ const verifyJWT = (req, res, next) => {
 async function run() {
   let client;
   try {
-    // Connect the client to the server (optional starting in v4.7)
     client = new MongoClient(uri, {
       serverApi: {
         version: ServerApiVersion.v1,
@@ -115,16 +114,16 @@ async function run() {
 
     app.delete("/enrollments/:id", async (req, res) => {
       const id = req.params.id;
-      console.log("ID:", id); // Check if the ID is correct
+      console.log("ID:", id);
 
       const query = { _id: new ObjectId(id) };
       const result = await enrollmentsCollection.deleteOne(query);
-      console.log("Delete Result:", result); // Check the result object
+      console.log("Delete Result:", result);
 
       res.send(result);
     });
 
-    // Retrieve user by email
+    // Get user by email
     app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
@@ -162,17 +161,14 @@ async function run() {
     app.get("/users/admin/:email", async (req, res) => {
       const email = req.params.email;
 
-      // Retrieve the user based on the provided email
+      // Get user by email
       const query = { email: email };
       const user = await usersCollection.findOne(query);
 
       if (!user) {
         return res.send({ admin: false });
       }
-
       const isAdmin = user.role === "admin";
-
-      // Send the admin status in the response
       res.send({ admin: isAdmin });
     });
 
@@ -190,7 +186,7 @@ async function run() {
       res.send(result);
     });
 
-    // Save pending class in database
+    // Save pending class
     app.post("/classdata", async (req, res) => {
       console.log(req.decoded);
       const list = req.body;
@@ -264,7 +260,7 @@ async function run() {
 
       try {
         const paymentIntent = await stripe.paymentIntents.create({
-          amount: price * 100, // amount in cents
+          amount: price * 100,
           currency: "usd",
         });
 
@@ -293,7 +289,6 @@ async function run() {
       console.log(`Server running on port ${port}`);
     });
   } finally {
-    // Ensures that the client will close when you finish/error
     // await client.close();
   }
 }
